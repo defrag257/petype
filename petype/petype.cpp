@@ -6,7 +6,6 @@
 #include <Windows.h>
 #include <stdarg.h>
 #include <string.h>
-#include <imagehlp.h>
 
 // 链接wsetargv.obj可展开通配符
 
