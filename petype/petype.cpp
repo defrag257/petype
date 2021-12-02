@@ -134,18 +134,21 @@ void ParsePEFile(const wchar_t* filename)
 
     IMAGE_LOAD_CONFIG_DIRECTORY32* loadcfg32 = NULL;
     IMAGE_LOAD_CONFIG_DIRECTORY64* loadcfg64 = NULL;
+    DWORD loadcfgbias = 0;
     DWORD loadcfgsize = 0;
     if (nthdr32->OptionalHeader.Magic == 0x20b)
     {
-        loadcfg64 = (IMAGE_LOAD_CONFIG_DIRECTORY64*)(image +
-            nthdr64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].VirtualAddress);
+        loadcfgbias = nthdr64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].VirtualAddress;
         loadcfgsize = nthdr64->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].Size;
+        if (loadcfgbias + loadcfgsize <= imagesize)
+            loadcfg64 = (IMAGE_LOAD_CONFIG_DIRECTORY64*)(image + loadcfgbias);
     }
     else
     {
-        loadcfg32 = (IMAGE_LOAD_CONFIG_DIRECTORY32*)(image +
-            nthdr32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].VirtualAddress);
+        loadcfgbias = nthdr32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].VirtualAddress;
         loadcfgsize = nthdr32->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].Size;
+        if (loadcfgbias + loadcfgsize <= imagesize)
+            loadcfg32 = (IMAGE_LOAD_CONFIG_DIRECTORY32*)(image + loadcfgbias);
     }
 
     switch (nthdr32->FileHeader.Machine)
